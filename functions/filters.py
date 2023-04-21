@@ -55,25 +55,24 @@ def comp_filter_complexity():
     return filter_complexity
 
 
-### DESIGNER(S)
-def comp_filter_designer(bgg_df):
-    # Create list containing all unique designers
-    def get_designer_list(designer_string):
-        global all_designers
+### DESIGNERS, SUBDOMAINS, MECHANICS
+def comp_filter_from_jointable(bgg_df, bgg_df_column, global_var_list, filter_id):
+        # Create list containing all unique designers, categories, mechanics, ...
+    def get_dim_list(dim_string, global_var_list):
         try:
-            temp_list = designer_string.split(', ')
+            temp_list = dim_string.split(', ')
             for substring in temp_list:
-                if substring not in all_designers:
-                    all_designers.append(substring)
+                if substring not in global_var_list:
+                    global_var_list.append(substring)
         except Exception as err:
             pass
 
-    bgg_df['DesignerList'].apply(lambda x: get_designer_list(x))
+    bgg_df[bgg_df_column].apply(lambda x: get_dim_list(x, global_var_list))
 
     # Create filter based on list with all unique designers
-    filter_designer = dcc.Dropdown(
-        options=all_designers,
+    filter_dim = dcc.Dropdown(
+        options=global_var_list,
         multi=True,
-        id='filter_designer'
+        id=filter_id
     )
-    return filter_designer
+    return filter_dim

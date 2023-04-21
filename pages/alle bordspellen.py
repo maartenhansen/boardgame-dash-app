@@ -49,6 +49,7 @@ h1 = dcc.Markdown(children="# Alle bordspellen")
 
 ### Define filters
 filter_ranking = comp_filter_ranking()
+
 filter_players = comp_filter_players()
 
 max_playtime = bgg_df['MaxPlaytime'].max() # used in callback function
@@ -56,51 +57,14 @@ filter_playtime = comp_filter_playtime()
 
 filter_complexity = comp_filter_complexity()
 
-filter_designer = comp_filter_designer(bgg_df)
+filter_designer = comp_filter_from_jointable(bgg_df, 'DesignerList', all_designers, 'filter_designer')
 
-# Create list containing all unique subdomains
-all_subdomains = []
-def get_subdomain_list(string):
-    global all_subdomains
-    try:
-        temp_list = string.split(', ')
-        for substring in temp_list:
-            if substring not in all_subdomains:
-                all_subdomains.append(substring)
-    except Exception as err:
-        pass
+filter_subdomain = comp_filter_from_jointable(bgg_df, 'SubdomainList', all_subdomains, 'filter_subdomain')
 
-bgg_df['SubdomainList'].apply(lambda x: get_subdomain_list(x))
+filter_mechanic = comp_filter_from_jointable(bgg_df, 'MechanicList', all_mechanics, 'filter_mechanic')
 
-# Create filter based on list with all unique subdomains
-filter_subdomain = dcc.Dropdown(
-    options=all_subdomains,
-    multi=True,
-    id='filter_subdomain'
-)
 
-# Create list containing all unique mechanics
-all_mechanics = []
-def get_mechanic_list(string):
-    global all_mechanics
-    try:
-        temp_list = string.split(', ')
-        for substring in temp_list:
-            if substring not in all_mechanics:
-                all_mechanics.append(substring)
-    except Exception as err:
-        pass
-
-bgg_df['MechanicList'].apply(lambda x: get_mechanic_list(x))
-
-# Create filter based on list with all unique subdomains
-filter_mechanic = dcc.Dropdown(
-    options=all_mechanics,
-    multi=True,
-    id='filter_mechanic'
-)
-
-# Create data_table
+### Create data_table
 bgg_table = dash_table.DataTable(
     data=bgg_df.to_dict('records'),
     columns=bgg_df_cols_to_display,

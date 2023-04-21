@@ -15,6 +15,11 @@ import random
 import duckdb
 import time
 
+# import custom handwritten functions
+import sys
+sys.path.append('C:/Users/maart/OneDrive/Bureaublad/Syntra/Eindwerk/Dash-Plotly') # make sure python will look into the 'functions' folder as well
+from functions.sql_bg_dash import create_db_connection
+
 dash.register_page(__name__, path='/recommender/')
 
 
@@ -29,7 +34,7 @@ server = 'DESKTOP-4K7IERR\SYNTRA_MAARTEN'
 database = 'BoardgameProject'
 
 # create engine for connection with database
-engine = create_engine("mssql+pyodbc:///?odbc_connect=DRIVER={ODBC Driver 17 for SQL Server};SERVER=" + server + ";DATABASE=" + database + ";Trusted_Connection=yes;")
+engine = create_db_connection(server, database)
 
 # create initial dataframe from fact table
 with engine.connect() as conn:
@@ -465,6 +470,9 @@ def get_recommendations_by_callback(bgg_username):
     add_recommended_games()
 
     return printed_games
+
+
+    
 
 
 

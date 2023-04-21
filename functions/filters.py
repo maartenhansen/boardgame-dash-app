@@ -107,3 +107,17 @@ def exe_filter_players(value_players, df):
         df_temp = df.query('(MinPlayers <= {}) & (MaxPlayers >= {})'.format(min_players, max_players)) # filtered from df_temp in order not to override (forget/undo) previous filters
         return df_temp
     return df # if no filter is necessary, just return the original df
+
+
+### PLAYTIME
+def exe_filter_playtime(value_playtime, df):
+    min_time = value_playtime[0]
+    if value_playtime[1] == 180:
+        max_time = 99999999
+    else:
+        max_time = value_playtime[1]
+    df_temp = df.query('(MaxPlaytime >= {}) & (MaxPlaytime <= {})'.format(min_time, max_time))
+    return df_temp
+
+
+### COMPLEXITY

@@ -188,12 +188,7 @@ def update_bgg_table(value_ranking, value_players, value_playtime, value_complex
     df_temp = exe_filter_players(value_players, df_temp)
     
     # filter playtime
-    min_time = value_playtime[0]
-    if value_playtime[1] == 180:
-        max_time = 99999999
-    else:
-        max_time = value_playtime[1]
-    df_temp = df_temp.query('(MaxPlaytime >= {}) & (MaxPlaytime <= {})'.format(min_time, max_time))
+    df_temp = exe_filter_playtime(value_playtime, df_temp)
 
     # filter complexity
     min_complexity = value_complexity[0]

@@ -21,7 +21,7 @@ sys.path.append('C:/Users/maart/OneDrive/Bureaublad/Syntra/Eindwerk/Dash-Plotly'
 from functions.sql_bg_dash import create_db_connection, create_initial_df
 from functions.recommendation_engine_bg_dash import get_recommendations
 
-# Registreer pagina & paginad
+# Define page & path
 dash.register_page(__name__, path='/recommender/')
 
 
@@ -32,7 +32,7 @@ dash.register_page(__name__, path='/recommender/')
 server = 'DESKTOP-4K7IERR\SYNTRA_MAARTEN'
 database = 'BoardgameProject'
 
-# create engine for connection with database
+# create engine for connection with database --> Can't be handled in the callback only because the compoment with the columns to display needs to be created
 engine = create_db_connection(server, database)
 
 # create initial dataframe from fact table

@@ -9,33 +9,28 @@ import pandas as pd
 from sqlalchemy import create_engine, text, Table, MetaData, Column, Integer, insert, select
 from sqlalchemy.exc import IntegrityError
 
+# import custom handwritten functions
+import sys
+sys.path.append('C:/Users/maart/OneDrive/Bureaublad/Syntra/Eindwerk/Dash-Plotly') # make sure python will look into the entire 'Dash-Plotly' folder as well
+from functions.sql_bg_dash import create_db_connection, create_initial_df
+from functions.filters import * # import functions for defining/creating filter components
+from settings.config import * # import global variables defined in 'config.py'
+
+# Define page & path
+dash.register_page(__name__, path='/') # '/' = homepage
+
 ##### Incorporporate data into app
 # define servername & database name
 server = 'DESKTOP-4K7IERR\SYNTRA_MAARTEN'
 database = 'BoardgameProject'
 
 # create engine for connection with database
-engine = create_engine("mssql+pyodbc:///?odbc_connect=DRIVER={ODBC Driver 17 for SQL Server};SERVER=" + server + ";DATABASE=" + database + ";Trusted_Connection=yes;")
+engine = create_db_connection(server, database)
 
 # create initial dataframe from fact table
-with engine.connect() as conn:
-    # only select maxplaytime, because minplaytime & maxplaytime will always be similar, so we would count the value double
-    stmt = text("select ID, BgNumber, BgName, MinPlayers, MaxPlayers, MaxPlaytime, Complexity, Ranking from Fct_Boardgame Where RowEndDate IS NULL AND Ranking < 1500 AND YearPublished != 0 ORDER BY Ranking Asc")
-    bgg_df = pd.read_sql(stmt, conn)
+bgg_df = create_initial_df(engine)
 
-# Create list with all the Dim columns that need to be added
-dim_list = ['Category', 'Designer', 'Illustrator', 'Mechanic', 'Subdomain', 'Publisher']
-    
-# Run a query to add dimension values to dataframe
-with engine.connect() as conn:
-    for dim in dim_list: # Run the query for each Dimension in dim_list
-        # sql statement that returns all values for each game concatenated (divided using ,-,)
-        stmt = text(f"select Fct.BgNumber, STRING_AGG(CONVERT(VARCHAR(max), Dim.{dim}Name), ', ') AS {dim}List, Fct.Ranking from Fct_Boardgame as Fct left join Dim_Boardgame_{dim} as Joi on Joi.Boardgame_ID=Fct.ID left join Dim_{dim} as Dim on Joi.{dim}_ID=Dim.ID Where RowEndDate IS NULL AND Ranking < 1500 AND YearPublished != 0 Group By Fct.BgNumber, Fct.Ranking Order by Fct.Ranking Asc")
-        # create temporary df
-        df_temp = pd.read_sql(stmt, conn)
-        # add dimension column form temporary df to final df
-        bgg_df[f"{dim}List"] = df_temp[f"{dim}List"]
-    
+# define columns that need to be displayed in the datatable component  below    
 bgg_df_cols_to_display = [
     {"name": "BGG-ranking", "id": "Ranking"},
     {"name": "Titel", "id": "BgName"},
@@ -48,71 +43,20 @@ bgg_df_cols_to_display = [
     {"name": "Hoofdcategorie", "id": "SubdomainList"}
     ]
 
-
 ###### Build components
-#app = Dash(__name__, external_stylesheets=[dbc.themes.SUPERHERO])
-#app.title = "Maarten's Boardgames"
-dash.register_page(__name__, path='/') # '/' = homepage
 
 h1 = dcc.Markdown(children="# Alle bordspellen") 
 
 ### Define filters
-filter_ranking = dcc.Dropdown(['Top 100', 'Top 250', 'Top 1000', 'Alle bordspellen'], 'Top 1000', id='filter_ranking')
-filter_players = dcc.Dropdown(['1', '2', '3','4', '5', '6', '7+'], id='filter_players')
+filter_ranking = comp_filter_ranking()
+filter_players = comp_filter_players()
 
-max_playtime = bgg_df['MaxPlaytime'].max()
-filter_playtime = dcc.RangeSlider(0, 180,
-        id='filter_playtime',
-        value=[0, 180],
-        marks={
-            0: "0'",
-            20: "20'",
-            40: "40'",
-            60: "1u",
-            120: "2u",
-            180: "3u+"
-        },
-        dots=False,
-        step=10,
-        updatemode='drag',
-        tooltip={"placement": "bottom"}
-    )
+max_playtime = bgg_df['MaxPlaytime'].max() # used in callback function
+filter_playtime = comp_filter_playtime()
 
-filter_complexity = dcc.RangeSlider(0,5, 
-            value=[0,5], 
-            step=0.1, 
-            id='filter_complexity',
-            updatemode='drag', 
-            tooltip={"placement": "bottom"}, 
-            marks={
-            0: "0",
-            1: "1",
-            2: "2",
-            3: "3",
-            4: "4",
-            5: "5"
-    })
+filter_complexity = comp_filter_complexity()
 
-# Create list containing all unique designers
-all_designers = []
-def get_designer_list(string):
-    global all_designers
-    try:
-        temp_list = string.split(', ')
-        for substring in temp_list:
-            if substring not in all_designers:
-                all_designers.append(substring)
-    except Exception as err:
-        pass
-
-bgg_df['DesignerList'].apply(lambda x: get_designer_list(x))
-
-# Create filter based on list with all unique designers
-filter_designer = dcc.Dropdown(
-    options=all_designers,
-    multi=True,
-    id='filter_designer'
-)
+filter_designer = comp_filter_designer(bgg_df)
 
 # Create list containing all unique subdomains
 all_subdomains = []

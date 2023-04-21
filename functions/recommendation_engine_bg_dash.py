@@ -29,6 +29,8 @@ def get_recommendations(bgg_username):
     # raise an exception if the response was not successful
     response.raise_for_status()
 
+    print('Request finished')
+
 
 
 
@@ -61,6 +63,7 @@ def get_recommendations(bgg_username):
     # create initial dataframe from fact table
     df = create_initial_df(engine)
 
+    print('Dataframe from sql server created')
 
     ### Put necessary fact columns in buckets              
     # Group complexity
@@ -199,7 +202,7 @@ def get_recommendations(bgg_username):
 
         # Return the top most similar games
         return [(game_ids[i], game_names[i], similarities[i]) for i in range(len(game_indices))]
-    
+    print('step 1 completed')
 
     # Step 2: Find similar games for each of the user's top-rated games
     similar_games = []
@@ -210,19 +213,23 @@ def get_recommendations(bgg_username):
         similar_games.extend(sorted(enumerate(game_similarities), key=lambda x: x[1], reverse=True)[:15])
 
     sorted_recommendations = sorted(similar_games, key=lambda x: x[1][2], reverse=True)
+    print('step 2 completed')
 
-        # Step 4: Remove duplicates
+        # Step 3: Remove duplicates
     sorted_recommendations = list(dict.fromkeys(sorted_recommendations))
+    print('step 3 completed')
 
-    # Step 5: Remove games that have already been rated
+    # Step 4: Remove games that have already been rated
     user_objectids = set(df_user['objectid'])
     filtered_recommendations = [(idx, rec) for idx, rec in sorted_recommendations if rec[0] not in user_objectids]
+    print('step 4 completed')
     
-    # Step 6, return only the game names so that they can be filtered
+    # Step 5, return only the game names so that they can be filtered
     rec_names = set()
     for game in filtered_recommendations:
         # do not print duplicate games
         if game[1][1] not in rec_names:
             rec_names.add(game[1][1])
+    print('step 5 completed')
 
     return rec_names

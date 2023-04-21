@@ -21,6 +21,7 @@ sys.path.append('C:/Users/maart/OneDrive/Bureaublad/Syntra/Eindwerk/Dash-Plotly'
 from functions.sql_bg_dash import create_db_connection, create_initial_df
 from functions.recommendation_engine_bg_dash import get_recommendations
 
+# Registreer pagina & paginad
 dash.register_page(__name__, path='/recommender/')
 
 
@@ -136,11 +137,6 @@ layout = html.Div([
     ], style={'padding': 40, 'flex': 1})
 ])
 
-
-
-#### Define necessarry variables for function used in callback (necessary as global variables)
-#printed_games = set() # WILL BE ACCESSED IN FUCNTION BELOW AS GLOBAL VARIABLE
-#printed_amount = 0 # WILL BE ACCESSED IN FUCNTION BELOW AS GLOBAL VARIABLE
 
     
 

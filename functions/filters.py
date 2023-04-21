@@ -121,3 +121,8 @@ def exe_filter_playtime(value_playtime, df):
 
 
 ### COMPLEXITY
+def exe_filter_complexity(value_complexity, df):
+    min_complexity = value_complexity[0]
+    max_complexity = value_complexity[1]
+    df_temp = df.query('(Complexity >= {}) & (Complexity <= {})'.format(min_complexity, max_complexity))
+    return df_temp

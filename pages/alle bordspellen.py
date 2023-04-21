@@ -191,9 +191,7 @@ def update_bgg_table(value_ranking, value_players, value_playtime, value_complex
     df_temp = exe_filter_playtime(value_playtime, df_temp)
 
     # filter complexity
-    min_complexity = value_complexity[0]
-    max_complexity = value_complexity[1]
-    df_temp = df_temp.query('(Complexity >= {}) & (Complexity <= {})'.format(min_complexity, max_complexity))
+    df_temp = exe_filter_complexity(value_complexity, df_temp)
 
     # filter designer
     if value_designer != None and value_designer != []:

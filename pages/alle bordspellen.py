@@ -182,7 +182,6 @@ layout = html.Div([
 def update_bgg_table(value_ranking, value_players, value_playtime, value_complexity, value_designer, value_subdomain, value_mechanism): # values are the inputs in the order they are assigned above
     # filter ranking
     df_temp = exe_filter_ranking(value_ranking, bgg_df)
-    print(df_temp)
 
     # filter players
     df_temp = exe_filter_players(value_players, df_temp)
@@ -194,38 +193,14 @@ def update_bgg_table(value_ranking, value_players, value_playtime, value_complex
     df_temp = exe_filter_complexity(value_complexity, df_temp)
 
     # filter designer
-    if value_designer != None and value_designer != []:
-        designer_df = df_temp[0:0] # create empyt dataframe with same columns as df_temp to append the necessary rows to
-        for designer in value_designer:
-            df_to_add = duckdb.query("SELECT * FROM df_temp WHERE DesignerList LIKE '%{}%'".format(designer)).to_df() # find all games related to the designer, repeat for each designer
-            designer_df = pd.concat([designer_df, df_to_add]).sort_values("Ranking")
-        designer_df = designer_df.drop_duplicates(subset='BgNumber', keep='first') # drop duplicates (if one game is contained in the list of 2 designers)
-        df_temp = designer_df
-    else:
-        df_temp = df_temp
+    df_temp = exe_filter_from_jointable(value_designer, df_temp, 'DesignerList')
             
 
     # filter subdomain
-    if value_subdomain != None and value_subdomain != []:
-        subdomain_df = df_temp[0:0] # create empyt dataframe with same columns as df_temp to append the necessary rows to
-        for subdomain in value_subdomain:
-            df_to_add = duckdb.query("SELECT * FROM df_temp WHERE SubdomainList LIKE '%{}%'".format(subdomain)).to_df() # find all games related to the designer, repeat for each designer
-            subdomain_df = pd.concat([subdomain_df, df_to_add]).sort_values("Ranking")
-        subdomain_df = subdomain_df.drop_duplicates(subset='BgNumber', keep='first') # drop duplicates (if one game is contained in the list of 2 designers)
-        df_temp = subdomain_df
-    else:
-        df_temp = df_temp
+    df_temp = exe_filter_from_jointable(value_subdomain, df_temp, 'SubdomainList')
 
     # filter mechanism
-    if value_mechanism != None and value_mechanism != []:
-        mechanism_df = df_temp[0:0] # create empyt dataframe with same columns as df_temp to append the necessary rows to
-        for mechanism in value_mechanism:
-            df_to_add = duckdb.query("SELECT * FROM df_temp WHERE MechanicList LIKE '%{}%'".format(mechanism)).to_df() # find all games related to the designer, repeat for each designer
-            mechanism_df = pd.concat([mechanism_df, df_to_add]).sort_values("Ranking")
-        mechanism_df = mechanism_df.drop_duplicates(subset='BgNumber', keep='first') # drop duplicates (if one game is contained in the list of 2 designers)
-        df_temp = mechanism_df
-    else:
-        df_temp = df_temp
+    df_temp = exe_filter_from_jointable(value_mechanism, df_temp, 'MechanicList')
             
 
 

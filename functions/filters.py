@@ -1,4 +1,6 @@
 from dash import dcc
+import duckdb
+import pandas as pd
 
 import sys
 sys.path.append('C:/Users/maart/OneDrive/Bureaublad/Syntra/Eindwerk/Dash-Plotly') # make sure python will look into the entire 'Dash-Plotly' folder as well
@@ -125,4 +127,18 @@ def exe_filter_complexity(value_complexity, df):
     min_complexity = value_complexity[0]
     max_complexity = value_complexity[1]
     df_temp = df.query('(Complexity >= {}) & (Complexity <= {})'.format(min_complexity, max_complexity))
+    return df_temp
+
+
+# DESIGNERS, SUBDOMAINS, MECHANICS
+def exe_filter_from_jointable(value_dim, df, df_column_name):
+    if value_dim != None and value_dim != []:
+        dim_df = df[0:0] # create empyt dataframe with same columns as df_temp to append the necessary rows to
+        for dim in value_dim:
+            df_to_add = duckdb.query("SELECT * FROM df_temp WHERE {} LIKE '%{}%'".format(df_column_name, dim)).to_df() # find all games related to the designer, repeat for each designer
+            dim_df = pd.concat([dim_df, df_to_add]).sort_values("Ranking")
+        dim_df = dim_df.drop_duplicates(subset='BgNumber', keep='first') # drop duplicates (if one game is contained in the list of 2 designers)
+        df_temp = dim_df
+    else:
+        df_temp = df
     return df_temp

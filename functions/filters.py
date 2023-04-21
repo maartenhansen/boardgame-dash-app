@@ -76,3 +76,34 @@ def comp_filter_from_jointable(bgg_df, bgg_df_column, global_var_list, filter_id
         id=filter_id
     )
     return filter_dim
+
+
+
+##### define application of filters
+### RANKING
+    # filter ranking
+def exe_filter_ranking(value_ranking, df):
+    if value_ranking == 'Top 100':
+        value_ranking = 100
+    elif value_ranking == 'Top 250':
+        value_ranking = 250
+    elif value_ranking == 'Top 1000':
+        value_ranking = 1000
+    else:
+        value_ranking = 999999999
+    df_temp = df.query('Ranking <= {}'.format(value_ranking)) # only the first query will be executed on the full dataframe, the following will be filtered from df_temp in order not to override (forget/undo) previous filters
+    return df_temp
+
+### PLAYERS
+def exe_filter_players(value_players, df):
+    if value_players == '7+':
+        players = 7
+        df_temp = df.query('MaxPlayers >= {}'.format(players)) # filtered from df_temp in order not to override (forget/undo) previous filters
+        return df_temp
+    elif value_players != None:
+        print(value_players)
+        min_players = int(value_players)
+        max_players = min_players
+        df_temp = df.query('(MinPlayers <= {}) & (MaxPlayers >= {})'.format(min_players, max_players)) # filtered from df_temp in order not to override (forget/undo) previous filters
+        return df_temp
+    return df # if no filter is necessary, just return the original df

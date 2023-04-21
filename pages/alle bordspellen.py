@@ -181,25 +181,11 @@ layout = html.Div([
 )
 def update_bgg_table(value_ranking, value_players, value_playtime, value_complexity, value_designer, value_subdomain, value_mechanism): # values are the inputs in the order they are assigned above
     # filter ranking
-    if value_ranking == 'Top 100':
-        value_ranking = 100
-    elif value_ranking == 'Top 250':
-        value_ranking = 250
-    elif value_ranking == 'Top 1000':
-        value_ranking = 1000
-    else:
-        value_ranking = 999999999
-    df_temp = bgg_df.query('Ranking <= {}'.format(value_ranking)) # only the first query will be executed on the full dataframe, the following will be filtered from df_temp in order not to override (forget/undo) previous filters
+    df_temp = exe_filter_ranking(value_ranking, bgg_df)
+    print(df_temp)
 
     # filter players
-    if value_players == '7+':
-        players = 7
-        df_temp = df_temp.query('MaxPlayers >= {}'.format(players)) # filtered from df_temp in order not to override (forget/undo) previous filters
-    elif value_players != None:
-        print(value_players)
-        min_players = int(value_players)
-        max_players = min_players
-        df_temp = df_temp.query('(MinPlayers <= {}) & (MaxPlayers >= {})'.format(min_players, max_players)) # filtered from df_temp in order not to override (forget/undo) previous filters
+    df_temp = exe_filter_players(value_players, df_temp)
     
     # filter playtime
     min_time = value_playtime[0]

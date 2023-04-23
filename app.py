@@ -32,8 +32,9 @@ sidebar = html.Div(
     html.P("Maarten zijn data-app over bordspellen", className="lead"),
     dbc.Nav(
         [
-            dbc.NavLink("Alle bordspellen", href="/", active="exact"), # active --> If selected, it will be shown e.g. highlighted
-            dbc.NavLink("Aanbevelingen", href='/recommender/', active="exact")
+            dbc.NavLink("Alle bordspellen", href="/", active="exact"), # active="exact" --> If selected, it will be shown e.g. highlighted
+            dbc.NavLink("Aanbevelingen", href='/recommender/', active="exact"),
+            dbc.NavLink("Statistieken", href='/stats/', active="exact")
         ],
 	vertical=True,
 	pills=True # pills maakt er een lange balk van bij weergave van actieve pagina (ipv enkel een link)

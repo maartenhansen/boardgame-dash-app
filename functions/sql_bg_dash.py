@@ -29,3 +29,18 @@ def create_initial_df(engine):
             bgg_df[f"{dim}List"] = df_temp[f"{dim}List"]
 
     return bgg_df
+
+
+# Create query for bar chart amount of games by designer in top x
+def get_game_amount_by_designer_top_x(engine, top_x):
+    with engine.connect() as conn:
+        stmt = text("SELECT COUNT(DISTINCT BgNumber) AS 'Aantal', Dim.DesignerName AS 'Auteur' FROM Fct_Boardgame AS Fct INNER JOIN Dim_Boardgame_Designer AS Joi ON Joi.Boardgame_ID=Fct.ID INNER JOIN Dim_Designer AS Dim ON Joi.Designer_ID=Dim.ID WHERE Fct.Ranking <= {} GROUP BY Dim.DesignerName ORDER BY COUNT(DISTINCT BgNumber) DESC".format(top_x))
+        df_temp = pd.read_sql(stmt, conn)
+        return df_temp.head(10) # only return the top 10 designers
+
+# Create query for bar chart game names by designer in top x
+def get_game_name_by_designer_top_x(engine, top_x):
+    with engine.connect() as conn:
+        stmt = text("SELECT Fct.BgName AS 'Bordspel', Dim.DesignerName FROM Fct_Boardgame AS Fct INNER JOIN Dim_Boardgame_Designer AS Joi ON Joi.Boardgame_ID=Fct.ID INNER JOIN Dim_Designer AS Dim ON Joi.Designer_ID=Dim.ID WHERE Fct.Ranking <= {}".format(top_x))
+        df_temp = pd.read_sql(stmt, conn)
+        return df_temp # only return the top 10 designers
